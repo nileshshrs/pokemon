@@ -10,7 +10,7 @@ const Pokemons = () => {
         queryKey: ['pokemon'],
         queryFn: async () => {
             try {
-                const response = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=151`);
+                const response = await axios.get(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=151`);
                 const fetchedData = response.data.results;
 
 
@@ -20,6 +20,7 @@ const Pokemons = () => {
                 const data = await Promise.all(urls.map(url => axios.get(url)));
 
                 const pokemonData = data.map(data => data.data);
+
 
                 const pokemon = await Promise.all(pokemonData.map(async (data) => ({
                     name: data.name,
@@ -39,43 +40,75 @@ const Pokemons = () => {
     })
 
 
-    const getRandomMoves = async (movesData, selectedMoves = []) => {
-        while (selectedMoves.length < 4 && movesData.length > 0) {
-            const randomIndex = Math.floor(Math.random() * movesData.length);
-            const moveName = movesData[randomIndex]?.move?.name;
-
-            if (moveName) {
-                const moveDetails = await getMoveDetails(moveName);
-
-                if (moveDetails && moveDetails.damage_class.name !== 'status' && moveDetails.generation.name === 'generation-i' && !selectedMoves.some(move => move.name === moveName)) {
-                    selectedMoves.push({
-                        name: moveName,
-                        accuracy: moveDetails.accuracy,
-                        pp: moveDetails.pp,
-                        power: moveDetails.power,
-                        attribute: moveDetails.damage_class.name,
-                        effect: moveDetails.effect_entries,
-                        damage_type: moveDetails.type.name
-                    });
+    const getRandomMoves = async (movesData) => {
+        const selectedMoves = [];
+        const selectedMoveNames = new Set();
+    
+        const getRandomMoveDetails = async (moveIndex) => {
+            const move = movesData[moveIndex];
+            const moveName = move?.move?.name;
+    
+            if (moveName && !selectedMoveNames.has(moveName)) {
+                try {
+                    const moveDetails = await getMoveDetails(moveName);
+                    if (moveDetails && moveDetails.damage_class.name !== 'status') {
+                        selectedMoves.push({
+                            name: move.move.name,
+                            accuracy: moveDetails.accuracy,
+                            pp: moveDetails.pp,
+                            power: moveDetails.power,
+                            attribute: moveDetails.damage_class.name,
+                            effect: moveDetails.effect_entries,
+                            damage_type: moveDetails.type.name
+                        });
+                        selectedMoveNames.add(moveName);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching move details for ${moveName}:`, error);
                 }
             }
-
-            movesData.splice(randomIndex, 1);
+        };
+    
+        let movesLeft = movesData.length;
+    
+        while (selectedMoves.length < 4 && movesLeft > 0) {
+            const numMovesToFetch = Math.min(4 - selectedMoves.length, movesLeft);
+            const requests = [];
+    
+            for (let i = 0; i < numMovesToFetch; i++) {
+                requests.push(getRandomMoveDetails(movesData.length - movesLeft + i));
+            }
+    
+            await Promise.all(requests);
+    
+            movesLeft -= numMovesToFetch;
         }
-
+    
         return selectedMoves;
     };
-
+    
 
     const getMoveDetails = async (moveName) => {
         try {
             const response = await axios.get(`https://pokeapi.co/api/v2/move/${moveName}`);
-            return response.data;
+            const moveData = response.data;
+
+            // Check if the move belongs to generation 1
+            if (moveData.generation && moveData.generation.name === 'generation-i') {
+
+                // If it's from generation 1, return the move details
+                return moveData;
+            }
+
+            // If it's not from generation 1, return null
+            return
         } catch (error) {
             console.error(`Error fetching move details for ${moveName}:`, error);
-            return null;
+            return
         }
     };
+
+
 
 
     const { data: pokemons, isLoading } = pokemonQuery;
