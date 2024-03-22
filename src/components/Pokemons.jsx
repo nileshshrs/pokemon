@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 import "./pokemons.scss"
 import { useQuery } from '@tanstack/react-query';
 
@@ -41,13 +40,20 @@ const Pokemons = () => {
 
 
     const getRandomMoves = async (movesData) => {
+        // Shuffle the movesData array
+        // console.log(movesData[0])
+        movesData = shuffleArray(movesData);
+        // console.log("after shuffle")
+        // console.log(movesData[0])
+        // console.log("finished shuffle")
+
         const selectedMoves = [];
         const selectedMoveNames = new Set();
-    
+
         const getRandomMoveDetails = async (moveIndex) => {
             const move = movesData[moveIndex];
             const moveName = move?.move?.name;
-    
+
             if (moveName && !selectedMoveNames.has(moveName)) {
                 try {
                     const moveDetails = await getMoveDetails(moveName);
@@ -68,39 +74,44 @@ const Pokemons = () => {
                 }
             }
         };
-    
+
         let movesLeft = movesData.length;
-    
+
         while (selectedMoves.length < 4 && movesLeft > 0) {
             const numMovesToFetch = Math.min(4 - selectedMoves.length, movesLeft);
             const requests = [];
-    
+
             for (let i = 0; i < numMovesToFetch; i++) {
                 requests.push(getRandomMoveDetails(movesData.length - movesLeft + i));
             }
-    
+
             await Promise.all(requests);
-    
+
             movesLeft -= numMovesToFetch;
         }
-    
+
         return selectedMoves;
     };
-    
+
+    // Function to shuffle an array
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
 
     const getMoveDetails = async (moveName) => {
         try {
             const response = await axios.get(`https://pokeapi.co/api/v2/move/${moveName}`);
             const moveData = response.data;
 
-            // Check if the move belongs to generation 1
             if (moveData.generation && moveData.generation.name === 'generation-i') {
-
-                // If it's from generation 1, return the move details
                 return moveData;
             }
 
-            // If it's not from generation 1, return null
             return
         } catch (error) {
             console.error(`Error fetching move details for ${moveName}:`, error);
@@ -119,8 +130,8 @@ const Pokemons = () => {
                 isLoading ? <>Loading Pokemons</> : (
                     <div className="px-5 py-2">
                         <div className="pokemon-list">
-                            {pokemons.map((pokemon, index) => (
-                                <div key={index} className="pokemon-card font-sans">
+                            {pokemons.map((pokemon) => (
+                                <div key={pokemon.name} className="pokemon-card font-sans">
                                     <div className="flex items-center justify-around w-full">
                                         <div className="pokemon">
                                             <img
