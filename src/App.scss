@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*,
+::before,
+::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: pokemon-solid;
+  src: url('./assets/pokemon-solid.ttf');
+}
+
+.title-screen {
+  text-align: center;
+  font-size: 1em;
+  font-family: pokemon-solid;
+  letter-spacing: 3px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 7rem;
+
+  .start {
+    font-family: pokemon-solid;
+    color: white;
+    padding: .25rem 1rem;
+    background-color: black;
+    border: none;
+    letter-spacing: 3px;
+    cursor: pointer;
+  }
+
+}
+
