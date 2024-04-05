@@ -1,0 +1,17 @@
+.vciXo {
+    min-height: 100vh;
+    position: fixed;
+    z-index: 99;
+    background: #ffffff;
+    top: 0;
+    right: 0;
+    min-width: min(100vw, 390px);
+    height: 100%;
+    box-shadow: -10px 0px 30px -15px rgba(2, 12, 27, 0.7);
+    transform: translateX(0);
+    transition: var(--transition);
+    padding: .75rem
+}
+.slide{
+    transform: translateX(100%); 
+}

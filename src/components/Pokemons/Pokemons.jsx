@@ -6,7 +6,8 @@ import { usePokemonContext } from "../../context/PokemonContext";
 
 const Pokemons = () => {
 
-    const { pokemonQuery } = usePokemonContext();
+    const { pokemonQuery, selectedPokemons } = usePokemonContext();
+
 
 
     const { data: pokemons, isLoading } = pokemonQuery;
@@ -48,7 +49,7 @@ const Pokemons = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <button className="w-[90%] capitalize rounded-sm font-bold text-sm py-[4px]" onClick={() => console.log(pokemon)}>
+                                    <button className="w-[90%] capitalize rounded-sm font-bold text-sm py-[4px]" onClick={() => selectedPokemons(pokemon)}>
                                         choose {pokemon.name}
                                     </button>
                                 </div>

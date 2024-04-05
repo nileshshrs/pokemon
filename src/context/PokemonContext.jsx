@@ -1,11 +1,18 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import Pokemons from "../components/Pokemons/Pokemons";
 
 const PokemonContext = createContext();
 
 export const PokemonProvider = ({ children }) => {
 
+    const [playerPokemon, setPlayerPokemon] = useState([]);
+    const [err, setErr] = useState("")
+
+
+
+    // Fetching Pokemon data
     const pokemonQuery = useQuery({
         queryKey: ['pokemon'],
         queryFn: async () => {
@@ -129,8 +136,27 @@ export const PokemonProvider = ({ children }) => {
         }
     };
 
+    // Fetching Pokemon data
+    //setting & removing player pokemons
 
-    return <PokemonContext.Provider value={{pokemonQuery}}>
+    const selectedPokemons = (pokemon) => {
+        if (playerPokemon.length >= 6) {
+            console.log("You have already selected 6 Pokémon.");
+        } else if (playerPokemon.some(p => p.name === pokemon.name)) {
+            console.log("This Pokémon is already selected.");
+        } else {
+            console.log("Adding Pokémon:", pokemon); // Debugging
+            setPlayerPokemon(prev => [...prev, pokemon]); // Update state
+        }
+        
+    };
+
+
+
+    //setting & removing player pokemons
+
+
+    return <PokemonContext.Provider value={{ pokemonQuery, selectedPokemons, playerPokemon, err }}>
         {children}
     </PokemonContext.Provider>
 }
