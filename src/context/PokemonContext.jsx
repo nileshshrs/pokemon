@@ -1,9 +1,10 @@
-import axios from 'axios';
-import "./pokemons.scss"
+import { createContext, useContext } from "react";
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
+const PokemonContext = createContext();
 
-const Pokemons = () => {
+export const PokemonProvider = ({ children }) => {
 
     const pokemonQuery = useQuery({
         queryKey: ['pokemon'],
@@ -24,7 +25,7 @@ const Pokemons = () => {
                 const pokemon = await Promise.all(pokemonData.map(async (data) => ({
                     name: data.name,
                     sprites: data.sprites,
-                    type: data.types.map(type => type.type.name),
+                    type: data.types?.map(type => type.type.name),
                     moves: await getRandomMoves(data.moves),
                 })));
 
@@ -93,13 +94,22 @@ const Pokemons = () => {
         return selectedMoves;
     };
 
+
     // Function to shuffle an array
     const shuffleArray = (array) => {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+        const result = [];
+        let currentIndex = 0;
+
+        for (const element of array) {
+            const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
+            if (randomIndex !== currentIndex) {
+                result[currentIndex] = result[randomIndex];
+            }
+            result[randomIndex] = element;
+            currentIndex++;
         }
-        return array;
+
+        return result;
     };
 
 
@@ -120,60 +130,11 @@ const Pokemons = () => {
     };
 
 
-
-
-    const { data: pokemons, isLoading } = pokemonQuery;
-
-    return (
-        <>
-            {
-                isLoading ? <>Loading Pokemons</> : (
-                    <div className="px-5 py-2">
-                        <div className="pokemon-list">
-                            {pokemons.map((pokemon) => (
-                                <div key={pokemon.name} className="pokemon-card font-sans">
-                                    <div className="flex items-center justify-around w-full">
-                                        <div className="pokemon">
-                                            <img
-                                                src={pokemon.sprites.front_default}
-                                                width={100}
-                                                height={100}
-                                                alt="Picture of the pokemon"
-                                                quality={80}
-                                                loading="lazy"
-                                            />
-
-                                            <div className="">
-                                                <div className="uppercase font-bold text-md">{pokemon.name}</div>
-                                            </div>
-                                        </div>
-                                        <div className="detail">
-                                            <div className="uppercase font-bold text-sm">Type: {pokemon.type.join(', ')}</div>
-                                            <div className="moves">
-                                                <h3 className="font-bold text-sm">MOVES/ABILITIES</h3>
-                                                <ul className="w-full font-semibold text-sm">
-                                                    {pokemon.moves.map((move, index) => (
-                                                        <li key={index} className="flex w-full justify-between gap-5 items-center">
-                                                            <span> {move.name}</span>  <span className="font-normal">PP: {move.pp < 10 ? `0${move.pp}` : move.pp}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button className="w-[90%] capitalize rounded-sm font-bold text-sm py-[4px]" onClick={() => console.log(pokemon)}>
-                                        choose {pokemon.name}
-                                    </button>
-                                </div>
-
-                            ))}
-                        </div>
-                    </div>
-
-                )
-            }
-        </>
-    )
+    return <PokemonContext.Provider value={{pokemonQuery}}>
+        {children}
+    </PokemonContext.Provider>
 }
 
-export default Pokemons;
+export const usePokemonContext = () => {
+    return useContext(PokemonContext);
+}
