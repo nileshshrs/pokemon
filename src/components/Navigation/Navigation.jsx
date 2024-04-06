@@ -6,7 +6,7 @@ import PlayerPokemons from '../Playerpicks/PlayerPokemons';
 
 const Navigation = () => {
     const { playerPokemon } = usePokemonContext()
-    console.log(playerPokemon)
+
     const [slide, setSlide] = useState(false)
 
     const handleSlide = () => {

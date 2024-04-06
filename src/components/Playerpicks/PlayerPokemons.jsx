@@ -8,7 +8,6 @@ const PlayerPokemons = ({ handleSlide, slide }) => {
   const { playerPokemon, removePokemon } = usePokemonContext();
   const pokemons = playerPokemon;
 
-  console.log(pokemons)
   return (
     <div className={slide ? "vciXo overflow-y-auto" : "vciXo slide overflow-y-auto"}>
       <div className='flex items-center justify-between'>
@@ -36,11 +35,11 @@ const PlayerPokemons = ({ handleSlide, slide }) => {
                     </div>
                     <div className='flex-col gap-3 w-full items-center justify-center'>
                       <div className='font-bold capitalize text-md'>{pokemon.name}</div>
-                      <div className='capitalize text-sm font-semibold w-full'>Type: {pokemon.type[0]},{pokemon.type[1]}</div>
+                      <div className='capitalize text-sm font-semibold w-full'>Type: {pokemon.type.join(",")}</div>
                       <div className='capitalize text-sm font-semibold w-full'>Moves: {pokemon.moves.length}/4</div>
                     </div>
                   </div>
-                  <button onClick={()=>removePokemon(pokemon)} className='w-full bg-black text-white font-bold text-sm py-1 rounded-sm'>
+                  <button onClick={() => removePokemon(pokemon)} className='w-full bg-black text-white font-bold text-sm py-1 rounded-sm'>
                     Remove from Party
                   </button>
                 </div>
