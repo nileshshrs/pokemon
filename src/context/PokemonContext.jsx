@@ -148,15 +148,17 @@ export const PokemonProvider = ({ children }) => {
             console.log("Adding Pokémon:", pokemon); // Debugging
             setPlayerPokemon(prev => [...prev, pokemon]); // Update state
         }
-        
+
     };
-
-
+    const removePokemon = (pokemon) => {
+        setPlayerPokemon(prev => prev.filter(p => p.name !== pokemon.name))
+    }
 
     //setting & removing player pokemons
 
 
-    return <PokemonContext.Provider value={{ pokemonQuery, selectedPokemons, playerPokemon, err }}>
+
+    return <PokemonContext.Provider value={{ pokemonQuery, selectedPokemons, playerPokemon, err, removePokemon }}>
         {children}
     </PokemonContext.Provider>
 }
